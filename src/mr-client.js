@@ -57,6 +57,7 @@ export default class MRClient {
             body?: Object,
             auth?: boolean,
             json?: boolean,
+            contentType?: string,
             formdata?: boolean,
             baseUrl?: string,
             platform?: string
@@ -70,6 +71,7 @@ export default class MRClient {
         const json = (requestOptions.json === undefined) ? true : requestOptions.json;
         const formdata = (requestOptions.formdata === undefined) ? false : requestOptions.formdata;
         const token = this._token;
+        const contentType = (requestOptions.contentType === undefined) ? false : requestOptions.contentType;
 
         if (auth && token) {
             if (token.isExpired()) {
@@ -88,13 +90,20 @@ export default class MRClient {
         }
 
         if (body && !formdata) {
-            if (json) {
+            if (contentType){
+                headers.append("Content-Type", contentType);
+
+                body = JSON.stringify({
+                    data: body
+                });
+            } else if (json) {
                 headers.append("Content-Type", "application/json");
 
                 body = JSON.stringify({
                     data: body
                 });
-            } else {
+            }
+             else {
                 headers.append("Content-Type", "application/x-www-form-urlencoded");
 
                 body = qsStringify(body);
